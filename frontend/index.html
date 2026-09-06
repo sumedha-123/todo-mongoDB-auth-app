@@ -1,0 +1,72 @@
+<html>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <div style="display:flex; justify-content:space-around;">
+    <div id="todos" style="display:flex; flex-direction:column;"></div>
+    <div>
+        <input type="text" id="userTodo" style="margin:5px">
+        <button onclick="addTodo()">Add Todo</button>
+    </div>
+  </div>
+    <script>
+        async function addTodo(){
+            await axios.post("http://localhost:3004/todos",
+                {
+                   description:document.getElementById("userTodo").value
+                },
+                {
+                    headers:{
+                      token:localStorage.getItem("token")
+                    }
+                }
+            );
+            document.getElementById("userTodo").value="";
+            getTodos();
+        }
+
+        async function deleteTodo(id){
+            await axios.delete(`http://localhost:3004/todos/${id}`,{
+                headers:{
+                    token:localStorage.getItem("token")
+                }
+            });
+            getTodos();
+        }
+
+        async function editTodo(id){
+
+            const newTodo = prompt("Enter new todo:");
+
+            if (!newTodo) {
+                return;
+            }
+            await axios.put(`http://localhost:3004/todos/${id}`,
+            {
+               description: newTodo
+             },{
+                headers:{
+                    token:localStorage.getItem("token")
+                }
+            });
+            getTodos();
+        }
+
+        async function getTodos(){
+            const response= await axios.get("http://localhost:3004/todos",{
+                headers:{
+                    token:localStorage.getItem("token")
+                }
+            });
+            const todos=response.data.todos;
+            document.getElementById("todos").innerHTML="";
+            for(let i=0;i<todos.length;i++){
+                const newDiv=document.createElement("div");
+                newDiv.innerHTML=`<span>${todos[i].description}</span>
+                                   <button onclick="editTodo('${todos[i]._id}')"style="margin:8px">Edit</button>
+                                   <button onclick="deleteTodo('${todos[i]._id}')"style="margin:8px">Delete</button>`;
+             document.getElementById("todos").appendChild(newDiv);
+            }
+        }
+        getTodos();
+
+    </script>
+</html>
