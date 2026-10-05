@@ -4,7 +4,7 @@ const ObjectId=mongoose.Types.ObjectId;
 mongoose.connect(process.env.MONGO_URI);
 
 const User=new Schema({
-    email:String,
+    email:{type:String,unique:true},
     password: String,
     name:String
 })
